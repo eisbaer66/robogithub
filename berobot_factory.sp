@@ -34,8 +34,6 @@ public Plugin myinfo =
 
 
 bool _init;
-char _isRobot[MAXPLAYERS + 1][NAMELENGTH];
-bool _robotIsCreated[MAXPLAYERS + 1];
 char _wasRobot[MAXPLAYERS + 1][NAMELENGTH];
 
 public void OnPluginStart()
@@ -48,8 +46,8 @@ public void Init()
     if (_init)
         return;
 
-    SMLoggerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
-    SMLogTag(SML_INFO, "berobot_factory started at %i", GetTime());
+    // SMLoggerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
+    // SMLogTag(SML_INFO, "berobot_factory started at %i", GetTime());
 
     RegAdminCmd("sm_trashrobot", Command_TrashRobot, ADMFLAG_SLAY, "Trash a robot");
     RegAdminCmd("sm_trshrbt", Command_TrashRobot, ADMFLAG_SLAY, "Trash a robot");
@@ -60,9 +58,7 @@ public void Init()
 
     for(int i = 0; i <= MaxClients; i++)
     {
-        _isRobot[i] = "";
         _wasRobot[i] = "";
-        _robotIsCreated[i] = false;
     }
 
     _init = true;
@@ -70,15 +66,11 @@ public void Init()
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
-	CreateNative("CreateRobot", Native_CreateRobot);
-	CreateNative("TrashRobot", Native_TrashRobot);
-	CreateNative("IsRobot", Native_IsRobot);
-    CreateNative("IsRobotWhenDead", Native_IsRobotWhenDead);
-	CreateNative("IsAnyRobot", Native_IsAnyRobot);
-    CreateNative("IsBoss", Native_IsBoss);
-	CreateNative("GetRobot", Native_GetRobot);
+    CreateNative("CreateRobot", Native_CreateRobot);
+    CreateNative("TrashRobot", Native_TrashRobot);
+    CreateNative("IsTank", Native_IsTank);
 
-	return APLRes_Success;
+    return APLRes_Success;
 }
 
 public void OnClientPutInServer(int client)
@@ -97,12 +89,12 @@ public void Event_Player_Spawned(Handle event, const char[] name, bool dontBroad
     if (!IsValidClient(client))
         return;
 
-    _robotIsCreated[client] = false;
+    TrackRobotCreation(client, false);
 
     bool isAlive = IsPlayerAlive(client);
     char robotName[NAMELENGTH];
-    robotName = _isRobot[client];
-    SMLogTag(SML_VERBOSE, "Event_Player_Spawned for %L (alive: %b) received with robot-name %s", client, isAlive, robotName);
+    GetRobot(client, robotName, NAMELENGTH);
+    // SMLogTag(SML_VERBOSE, "Event_Player_Spawned for %L (alive: %b) received with robot-name %s", client, isAlive, robotName);
 
     ResetPreviousRobot(client);
     if (robotName[0] == '\0') 
@@ -113,7 +105,7 @@ public void Event_Player_Spawned(Handle event, const char[] name, bool dontBroad
     Robot item;
     if (GetRobotDefinition(robotName, item) != 0)
     {
-        SMLogTag(SML_ERROR, "could not stop sounds. no robot with name '%s' found for %L", robotName, client);
+        // SMLogTag(SML_ERROR, "could not stop sounds. no robot with name '%s' found for %L", robotName, client);
         return;
     }
 
@@ -127,11 +119,11 @@ public void ResetPreviousRobot(int client)
     {
         return;
     }
-    SMLogTag(SML_VERBOSE, "resetting robot for %L (was %s)", client, _wasRobot[client]);
+    // SMLogTag(SML_VERBOSE, "resetting robot for %L (was %s)", client, _wasRobot[client]);
     Robot item;
     if (GetRobotDefinition(_wasRobot[client], item) != 0)
     {
-        SMLogTag(SML_ERROR, "could not stop sounds. no robot with name '%s' found for %L", _wasRobot[client], client);
+        // SMLogTag(SML_ERROR, "could not stop sounds. no robot with name '%s' found for %L", _wasRobot[client], client);
         return;
     }
     
@@ -145,22 +137,24 @@ public Action Timer_Locker(Handle timer, any client)
         return Plugin_Handled;
 
     char robotName[NAMELENGTH];
-    robotName = _isRobot[client];
-    SMLogTag(SML_VERBOSE, "Event_Player_Spawned for %L received with robot-name %s", client, robotName);
+    GetRobot(client, robotName, NAMELENGTH);
+    // SMLogTag(SML_VERBOSE, "Event_Player_Spawned for %L received with robot-name %s", client, robotName);
 
     Robot item;
     if (GetRobotDefinition(robotName, item) != 0)
     {
-        SMLogTag(SML_ERROR, "could not stop sounds. no robot with name '%s' found for %L", robotName, client);
+        // SMLogTag(SML_ERROR, "could not stop sounds. no robot with name '%s' found for %L", robotName, client);
         return Plugin_Handled;
     }
 
-    CallCreate(client, item);
-    // if (IsPlayerAlive(client) && IsAnyRobot(client))
-    // { 
-    //     EmitSoundToAll(item.sounds.spawn);
+    if (IsPlayerAlive(client))
+    { 
+        EmitSoundToAll(item.sounds.spawn);
         
-    // }
+    }
+
+    CallCreate(client, item);
+
     return Plugin_Handled;
 }
 
@@ -168,25 +162,27 @@ public void Event_Death(Handle event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	int deathflags = GetEventInt(event, "death_flags");
-	SMLogTag(SML_VERBOSE, "Event_Death for %L received with name %s, dontBroadcast %b and deathflags %i", client, name, dontBroadcast, deathflags);
+	// SMLogTag(SML_VERBOSE, "Event_Death for %L received with name %s, dontBroadcast %b and deathflags %i", client, name, dontBroadcast, deathflags);
 
 	if (!(deathflags & TF_DEATHFLAG_DEADRINGER))
 	{
         if(!IsValidClient(client))
         {
-            SMLogTag(SML_VERBOSE, "skipped Event_Death, because %i is not a valid client", client);
+            // SMLogTag(SML_VERBOSE, "skipped Event_Death, because %i is not a valid client", client);
             return;
         }
-        if(_isRobot[client][0] == '\0')
+        char robotName[NAMELENGTH];
+        GetRobot(client, robotName, NAMELENGTH);
+        if(robotName[0] == '\0')
         {
-            SMLogTag(SML_VERBOSE, "skipped Event_Death, because %L is no robot", client);
+            // SMLogTag(SML_VERBOSE, "skipped Event_Death, because %L is no robot", client);
             return;
         }
 
         Robot item;
-        if (GetRobotDefinition(_isRobot[client], item) != 0)
+        if (GetRobotDefinition(robotName, item) != 0)
         {
-            SMLogTag(SML_ERROR, "skipped Event_Death, because no robot with name '%s' found for %L", _isRobot[client], client);
+            // SMLogTag(SML_ERROR, "skipped Event_Death, because no robot with name '%s' found for %L", robotName, client);
             return;
         }
 
@@ -200,14 +196,14 @@ void ResetOnDeath(int client, Robot item)
     
     TF2Attrib_RemoveAll(client);
     if (IsPlayerAlive(client)){
-    EmitSoundToAll(item.sounds.death);
+        EmitSoundToAll(item.sounds.death, client);
     }
-    _robotIsCreated[client] = false;    
+    TrackRobotCreation(client, false);
 }
 
 void StopSounds(int client, Robot item)
 {    
-    SMLogTag(SML_VERBOSE, "stopping sounds for %L as %s", client, item.name);
+    // SMLogTag(SML_VERBOSE, "stopping sounds for %L as %s", client, item.name);
 
     if (item.sounds.loop[0] != '\0')
         StopSound(client, SNDCHAN_AUTO, item.sounds.loop);    
@@ -225,10 +221,12 @@ public void FullReset(int client)
 {
     if (IsValidClient(client))
     {
+        char robotName[NAMELENGTH];
+        GetRobot(client, robotName, NAMELENGTH);
         Robot item;
-        if (GetRobotDefinition(_isRobot[client], item) != 0)
+        if (GetRobotDefinition(robotName, item) != 0)
         {
-            SMLogTag(SML_ERROR, "could not stop sounds. no robot with name '%s' found for %L", _isRobot[client], client);
+            // SMLogTag(SML_ERROR, "could not stop sounds. no robot with name '%s' found for %L", robotName, client);
             return;
         }
         else
@@ -240,8 +238,8 @@ public void FullReset(int client)
 
 public void Reset(int client)
 {
-    _isRobot[client] = "";
-    _robotIsCreated[client] = false;
+    TrackRobot(client, "");
+    TrackRobotCreation(client, false);
 }
 
 public any Native_CreateRobot(Handle plugin, int numParams)
@@ -283,7 +281,7 @@ public any Native_CreateRobot(Handle plugin, int numParams)
 	Robot item;
 	if (GetRobotDefinition(name, item) != 0)
 	{
-		SMLogTag(SML_ERROR, "could not create robot. no robot with name '%s' found", name);
+		// SMLogTag(SML_ERROR, "could not create robot. no robot with name '%s' found", name);
 		return 1;
 	}
 
@@ -291,7 +289,7 @@ public any Native_CreateRobot(Handle plugin, int numParams)
 	for (int i = 0; i < target_count; i++)
 	{
         int targetClientId = target_list[i];
-        SMLogTag(SML_VERBOSE, "%i. target: %i", i, targetClientId);
+        // SMLogTag(SML_VERBOSE, "%i. target: %i", i, targetClientId);
 
         bool paid = PayRobotCoin(item.restrictions, targetClientId);
         if (!paid)
@@ -300,7 +298,7 @@ public any Native_CreateRobot(Handle plugin, int numParams)
             Format(msg, 256, "could not pay for robot %s, please try again.", name);
             MM_PrintToChat(targetClientId, msg);
 
-            SMLogTag(SML_ERROR, "could not create robot '%s'. could not pay robot-coins", name);
+            // SMLogTag(SML_ERROR, "could not create robot '%s'. could not pay robot-coins", name);
             return 3;
         }
 
@@ -312,19 +310,24 @@ public any Native_CreateRobot(Handle plugin, int numParams)
         if (strcmp(name, wasRobot) == 0)    //don't enable robot, if client was already same robot as requested
             continue;
 
-        _isRobot[targetClientId] = name;
+        TrackRobot(targetClientId, name);
 
-        SMLogTag(SML_VERBOSE, "calling privateForward %x for robot %s, with client %i and target %s (current %i; count %i)", item.callback, name, client, target, targetClientId, target_count);
+        // SMLogTag(SML_VERBOSE, "calling privateForward %x for robot %s, with client %i and target %s (current %i; count %i)", item.callback, name, client, target, targetClientId, target_count);
         CallCreate(targetClientId, item);
 
         robotWasCreated = true;
     }
 	if (robotWasCreated)
 	{
-		SMLogTag(SML_VERBOSE, "playing robot spawn sound %s to all for call by client %i for target %s", item.sounds.spawn, client, target);
-		if (IsPlayerAlive(client)){
+		// SMLogTag(SML_VERBOSE, "playing robot spawn sound %s to all for call by client %i for target %s", item.sounds.spawn, client, target);
+
+        if (IsPlayerAlive(client))
+        { 
+          //  PrintToChatAll("PLAYER WAS ALIVE");
             EmitSoundToAll(item.sounds.spawn);
-        } 
+            
+        }
+
 	}
 
 	return 0;
@@ -353,36 +356,7 @@ public any Native_TrashRobot(Handle plugin, int numParams)
     return TrashTargetedRobot(client, target);
 }
 
-public any Native_IsRobot(Handle plugin, int numParams)
-{
-    int client = GetNativeCell(1);
-    if (!_robotIsCreated[client])
-        return false;
-
-    char name[NAMELENGTH];
-    GetNativeString(2, name, NAMELENGTH);
-
-    return strcmp(_isRobot[client], name) == 0;
-}
-
-public any Native_IsRobotWhenDead(Handle plugin, int numParams)
-{
-    int client = GetNativeCell(1);
-
-    char name[NAMELENGTH];
-    GetNativeString(2, name, NAMELENGTH);
-
-    return strcmp(_isRobot[client], name) == 0;
-}
-
-public any Native_IsAnyRobot(Handle plugin, int numParams)
-{
-    int client = GetNativeCell(1);
-
-    return _isRobot[client][0] != '\0';
-}
-
-public any Native_IsBoss(Handle plugin, int numParams)
+public any Native_IsTank(Handle plugin, int numParams)
 {
     int client = GetNativeCell(1);
 
@@ -393,9 +367,9 @@ public any Native_IsBoss(Handle plugin, int numParams)
     GetRobotDefinition(robotName, robot);
 
 
-    if (StrEqual(robot.role,"ZBOSS"))
+    if (StrEqual(robot.role,"Tank"))
     {
-       // PrintToChatAll("Robot role from factory: %s", robot.role);
+     //  PrintToChatAll("Robot role from factory: %s", robot.role);
         
         return true;
     }else
@@ -448,13 +422,15 @@ int TrashTargetedRobot(int clientId, char target[32])
 int Trash(int clientId, char wasRobot[NAMELENGTH] = "", char newRobotName[NAMELENGTH] = "")
 {
     if (!IsValidClient(clientId) || !IsClientInGame(clientId))
-    return 0;
-
-    strcopy(wasRobot, NAMELENGTH, _isRobot[clientId]);
+        return 2;
+        
+    char robotName[NAMELENGTH];
+    GetRobot(clientId, robotName, NAMELENGTH);
+    strcopy(wasRobot, NAMELENGTH, robotName);
     if (wasRobot[0] == '\0')            //disable previous robot
         return 0;
     
-    SMLogTag(SML_VERBOSE, "disableing old robot %s for %L", wasRobot, clientId);
+    // SMLogTag(SML_VERBOSE, "disableing old robot %s for %L", wasRobot, clientId);
     if (_wasRobot[clientId][0] == '\0')
         _wasRobot[clientId] = wasRobot;
 
@@ -463,10 +439,12 @@ int Trash(int clientId, char wasRobot[NAMELENGTH] = "", char newRobotName[NAMELE
     {
         if (!IsValidClient(otherRobotClientIndex))
             continue;
-        if (_isRobot[otherRobotClientIndex][0] == '\0')
+        char otherRobotName[NAMELENGTH];
+        GetRobot(clientId, otherRobotName, NAMELENGTH);
+        if (otherRobotName[0] == '\0')
             continue;
         
-        SMLogTag(SML_VERBOSE, "notifying %L, about %L switch from '%s' to '%s'", otherRobotClientIndex, clientId, wasRobot, newRobotName);
+        // SMLogTag(SML_VERBOSE, "notifying %L, about %L switch from '%s' to '%s'", otherRobotClientIndex, clientId, wasRobot, newRobotName);
         if (newRobotName[0] == '\0')
             MC_PrintToChatEx(otherRobotClientIndex, otherRobotClientIndex, "{teamcolor}%N switching from '%s'", clientId, wasRobot);
         else
@@ -537,28 +515,19 @@ int Trash(int clientId, char wasRobot[NAMELENGTH] = "", char newRobotName[NAMELE
         return 0;
     }
 
-    SMLogTag(SML_VERBOSE, "forcing suicide on %L to become robot '%s'", clientId, newRobotName);
+    // SMLogTag(SML_VERBOSE, "forcing suicide on %L to become robot '%s'", clientId, newRobotName);
     ForcePlayerSuicide(clientId);
 
     Robot oldRobot;
     if (GetRobotDefinition(wasRobot, oldRobot) != 0)
     {
-        SMLogTag(SML_ERROR, "could not create robot. no robot with name '%s' found", wasRobot);
+        // SMLogTag(SML_ERROR, "could not create robot. no robot with name '%s' found", wasRobot);
         return 1;
     }
 
     ResetOnDeath(clientId, oldRobot);
 
     return 0;
-    
-}
-
-public any Native_GetRobot(Handle plugin, int numParams)
-{
-	int client = GetNativeCell(1);
-	int maxDestLength = GetNativeCell(3);
-
-	SetNativeString(2, _isRobot[client], maxDestLength);
 }
 
 void CallCreate(int client, Robot item)
@@ -568,11 +537,11 @@ void CallCreate(int client, Robot item)
 
     Call_Finish();
     
-    SMLogTag(SML_VERBOSE, "starting loop-sound %s for %L as %s", item.sounds.loop, client, item.name);
+    // SMLogTag(SML_VERBOSE, "starting loop-sound %s for %L as %s", item.sounds.loop, client, item.name);
 
     if (IsPlayerAlive(client)){
-    EmitSoundToAll(item.sounds.loop, client,_,_,_, 0.25);
+        EmitSoundToAll(item.sounds.loop, client,_,_,_, 0.25);
     }
-    _isRobot[client] = item.name;
-    _robotIsCreated[client] = true;
+    TrackRobot(client, item.name);
+    TrackRobotCreation(client, true);
 }

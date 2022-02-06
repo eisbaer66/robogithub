@@ -9,7 +9,7 @@
 #include <tf_custom_attributes>
 
 #define PLUGIN_VERSION "1.0"
-#define ROBOT_NAME	"Burst firer"
+#define ROBOT_NAME	"Bursty"
 #define ROBOT_ROLE "Damage"
 #define ROBOT_DESCRIPTION "Burst fire 3 rockets"
 
@@ -61,7 +61,7 @@ enum(<<= 1)
 
 public OnPluginStart()
 {
-    SMLoggerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
+    // SMLoggerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
 
     LoadTranslations("common.phrases");
 
@@ -200,7 +200,7 @@ public Action:BossHomer(clients[64], &numClients, String:sample[PLATFORM_MAX_PAT
 
 MakeGiantSoldier(client)
 {
-	SMLogTag(SML_VERBOSE, "Createing Homer");
+	// SMLogTag(SML_VERBOSE, "Createing Homer");
 	TF2_SetPlayerClass(client, TFClass_Soldier);
 	TF2_RegeneratePlayer(client);
 
@@ -287,7 +287,7 @@ stock GiveGiantPyro(client)
 	//	CreateRoboHat(client, SteelShako, 10, 6, 0.0, 0.75, -1.0);
 
 	//	CreateHat(client, 30050, 10, 6, true); //Gatebot
-		CreateRoboWeapon(client, "tf_weapon_buff_item", 129, 6, 1, 1, 0);
+		//CreateRoboWeapon(client, "tf_weapon_buff_item", 129, 6, 1, 1, 0);
 		//CreateHat(client, 647, 10, 6, true); //The All-Father
 		//CreateHat(client, 343, 10, 6, true);//Professor speks
 
@@ -304,11 +304,12 @@ stock GiveGiantPyro(client)
 			TF2Attrib_SetByName(Weapon1, "fire rate bonus", 0.175);
 			//TF2Attrib_SetByName(Weapon1, "Blast radius decreased", 0.6);
 			TF2Attrib_SetByName(Weapon1, "auto fires full clip penalty", 1.0);
-			TF2Attrib_SetByName(Weapon1, "Reload time increased", 1.25);
-			TF2Attrib_SetByName(Weapon1, "dmg penalty vs buildings", 0.6);
+			TF2Attrib_SetByName(Weapon1, "Reload time increased", 1.35);
+			TF2Attrib_SetByName(Weapon1, "dmg penalty vs buildings", 0.35);
+			TF2Attrib_SetByName(Weapon1, "Projectile speed increased", 1.65);
 			
 			
-			//TF2Attrib_SetByName(Weapon1, "projectile spread angle penalty", 1.0);
+			TF2Attrib_SetByName(Weapon1, "projectile spread angle penalty", 1.0);
 			
 			
 			TF2CustAttr_SetString(Weapon1, "reload full clip at once", "1.0");

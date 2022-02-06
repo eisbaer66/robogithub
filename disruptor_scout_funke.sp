@@ -8,7 +8,7 @@
 
 #define PLUGIN_VERSION "1.0"
 #define ROBOT_NAME	"Funke"
-#define ROBOT_ROLE "Disrupter"
+#define ROBOT_ROLE "Disruptor"
 #define ROBOT_DESCRIPTION "Rapid Cleaver"
 
 #define GSCOUT		"models/bots/scout_boss/bot_scout_boss.mdl"
@@ -40,7 +40,7 @@ enum(<<= 1)
 
 public OnPluginStart()
 {
-    SMLoggerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
+    // SMLoggerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
 
 	LoadTranslations("common.phrases");
 
@@ -136,7 +136,7 @@ public Action:BossScout(clients[64], &numClients, String:sample[PLATFORM_MAX_PAT
 
 MakeGiantscout(client)
 {
-	SMLogTag(SML_VERBOSE, "Createing ScoutName");
+	// SMLogTag(SML_VERBOSE, "Createing ScoutName");
 	TF2_SetPlayerClass(client, TFClass_Scout);
 	TF2_RegeneratePlayer(client);
 

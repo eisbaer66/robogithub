@@ -45,7 +45,7 @@ enum(<<= 1)
 
 public OnPluginStart()
 {
-    SMLoggerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
+    // SMLoggerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
 
     LoadTranslations("common.phrases");
 
@@ -180,7 +180,7 @@ public Action:BossIcebear(clients[64], &numClients, String:sample[PLATFORM_MAX_P
 
 MakeGiantSoldier(client)
 {
-	SMLogTag(SML_VERBOSE, "Createing Soldier");
+	// SMLogTag(SML_VERBOSE, "Createing Soldier");
 	TF2_SetPlayerClass(client, TFClass_Soldier);
 	TF2_RegeneratePlayer(client);
 
@@ -228,7 +228,7 @@ MakeGiantSoldier(client)
 	//TF2Attrib_SetByName(client, "cancel falling damage", 1.0);
 
 	//TF2Attrib_SetByName(client, "blast_dmg_to_self", 0.1);
-	
+	TF2Attrib_SetByName(client, "increase buff duration", 10.0);
 	TF2Attrib_SetByName(client, "self dmg push force increased", 4.0);
 	TF2Attrib_SetByName(client, "boots falling stomp", 6.0);
 	

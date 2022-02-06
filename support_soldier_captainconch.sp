@@ -41,7 +41,7 @@ enum(<<= 1)
 
 public OnPluginStart()
 {
-    SMLoggerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
+    // SMLoggerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
 
 	LoadTranslations("common.phrases");
 
@@ -59,7 +59,7 @@ public OnPluginStart()
 
 	RestrictionsDefinition restrictions = new RestrictionsDefinition();
     restrictions.RobotCoins = new RobotCoinRestrictionDefinition();
-    restrictions.RobotCoins.Overall = 5;
+    restrictions.RobotCoins.Overall = 4;
 
 	AddRobot(robot, MakeGiantSoldier, PLUGIN_VERSION, restrictions);
 }
@@ -163,7 +163,7 @@ public Action:BossIcebear(clients[64], &numClients, String:sample[PLATFORM_MAX_P
 
 MakeGiantSoldier(client)
 {
-	SMLogTag(SML_VERBOSE, "Createing Icebear");
+	// SMLogTag(SML_VERBOSE, "Createing Icebear");
 	TF2_SetPlayerClass(client, TFClass_Soldier);
 	TF2_RegeneratePlayer(client);
 

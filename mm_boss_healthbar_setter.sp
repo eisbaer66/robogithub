@@ -8,6 +8,9 @@
 
 #include <sdktools>
 
+//#define BOSSTUNE "music.mvm_end_mid_wave"
+#define BOSSTUNE "#*music/mvm_start_last_wave.wav"
+
 enum TFBossHealthState {
 	HealthState_Default = 0,
 	HealthState_Healing // displays a green health bar
@@ -108,6 +111,7 @@ public void OnPluginStart() {
 	LoadTranslations("common.phrases");
 	
 	RegAdminCmd("sm_setboss", SetBossHealthTarget, ADMFLAG_ROOT);
+	//RegAdminCmd("sm_pt", PlayTune, ADMFLAG_ROOT);
 	//RegAdminCmd("sm_setbosshud", SetBossHealth, ADMFLAG_ROOT);
 //	RegServerCmd("sm_unsetbosshud", UnSetBossHealth);
 	
@@ -116,7 +120,6 @@ public void OnPluginStart() {
 
 	//HookEvent("player_death", Event_Death_RemoveHUD, EventHookMode_Post);
 
-	PrecacheScriptSound("Announcer.MVM_General_Destruction");
 }
 
 public void OnPluginEnd() {
@@ -129,8 +132,8 @@ public void OnPluginEnd() {
 public void OnMapStart()
 {
 
-    PrecacheScriptSound("Announcer.MVM_General_Destruction");
-
+    //PrecacheScriptSound(BOSSTUNE);
+	PrecacheSound(BOSSTUNE);
 }
 
 // public Action Event_Death_RemoveHUD(Event event, const char[] name, bool dontBroadcast)
@@ -155,7 +158,15 @@ public void RemoveHUD(){
 	{
 		if (IsValidEntity(iEnt))
 		{
-			AcceptEntityInput(iEnt, "Kill");
+			 DispatchKeyValue(iEnt, "rendermode", "0");
+			
+			DispatchSpawn(iEnt);
+			//AcceptEntityInput(iEnt, "Kill");
+			// float fPos[3];
+			// fPos[0] = 15.0;
+			// fPos[1] = 15.0;
+			// fPos[2] = 15.0;
+			// TeleportEntity(iEnt, fPos, NULL_VECTOR, NULL_VECTOR);
 		}
 	} 
 }
@@ -170,31 +181,13 @@ public void OnInventoryApplied(Event event, const char[] name, bool dontBroadcas
 		SetEntProp(client, Prop_Send, "m_bUseBossHealthBar", false);
 	}
 
-	// int iTarget = client;
-
-	// if (IsAnyRobot(client) && !IsBoss(client) && client == g_iBossTarget){
-	// 	//PrintToChatAll("%N was not a ZBOSS! but is the target, removing hud and target", client);
-	// 	RemoveHUD();
-	// }
-
-	//PrintToChatAll("Did inventory!");
-
 	if (IsBoss(client))
 	{
 		//PrintToChatAll("WAS BOSS!");
 		SetBossHealthTargetCommand(client);	
 	}
 
-	
-	// if (iTarget != -1 && g_iBossTarget != iTarget) {
-	// 	if (IsValidEntity(g_iBossTarget)) {
-	// 		SDKUnhook(g_iBossTarget, SDKHook_PostThink, OnBossPostThink);
-	// 	}
-	// 	g_iBossTarget = iTarget;
-	// 	SDKHook(iTarget, SDKHook_PostThink, OnBossPostThink);
-	// 	ReplyToCommand(client, "Switched boss target to %N", iTarget);
-		
-	// }
+
 	
 }
 
@@ -202,6 +195,9 @@ public Action SetBossHealthTarget(int client, int argc) {
 	if (!argc) {
 		return Plugin_Handled;
 	}
+
+
+	//EmitGameSoundToAll(BOSSTUNE);
 	
 	char target[MAX_NAME_LENGTH + 1];
 	GetCmdArg(1, target, sizeof(target));
@@ -211,9 +207,14 @@ public Action SetBossHealthTarget(int client, int argc) {
 	if (iTarget != -1 && g_iBossTarget != iTarget) {
 		if (IsValidEntity(g_iBossTarget)) {
 			SDKUnhook(g_iBossTarget, SDKHook_PostThink, OnBossPostThink);
+	//		SetEntProp(g_iBossTarget, Prop_Send, "m_bGlowEnabled", 0);
 		}
 		g_iBossTarget = iTarget;
 		SDKHook(iTarget, SDKHook_PostThink, OnBossPostThink);
+		// if (IsValidEntity(g_iBossTarget)){
+		// 	SetEntProp(g_iBossTarget, Prop_Send, "m_bGlowEnabled", 0);
+		// }
+		EmitSoundToAll(BOSSTUNE);
 	//	ReplyToCommand(client, "Switched boss target to %N", iTarget);
 	} else {
 		g_iBossTarget = -1;
@@ -232,11 +233,18 @@ public Action SetBossHealthTargetCommand(int client) {
 	if (iTarget != -1 && g_iBossTarget != iTarget) {
 		if (IsValidEntity(g_iBossTarget)) {
 			SDKUnhook(g_iBossTarget, SDKHook_PostThink, OnBossPostThink);
+//			SetEntProp(g_iBossTarget, Prop_Send, "m_bGlowEnabled", 1);
 		}
 		g_iBossTarget = iTarget;
 		SDKHook(iTarget, SDKHook_PostThink, OnBossPostThink);
+		
+		// if (IsValidEntity(g_iBossTarget)){
+		// 	SetEntProp(iTarget, Prop_Send, "m_bGlowEnabled", 0);
+		// }
 	//	ReplyToCommand(client, "Switched boss target to %N", iTarget);
 	} 
+
+	EmitSoundToAll(BOSSTUNE);
 	// else {
 	// 	g_iBossTarget = -1;
 	// //	ReplyToCommand(client, "Removed boss target");
@@ -246,52 +254,24 @@ public Action SetBossHealthTargetCommand(int client) {
 	return Plugin_Handled;
 }
 
-// public Action SetBossHealth(int client) {
-
-// 	int iTarget = client;
-	
-// 	if (iTarget != -1 && g_iBossTarget != iTarget) {
-// 		if (IsValidEntity(g_iBossTarget)) {
-// 			SDKUnhook(g_iBossTarget, SDKHook_PostThink, OnBossPostThink);
-// 		}
-// 		g_iBossTarget = iTarget;
-// 		SDKHook(iTarget, SDKHook_PostThink, OnBossPostThink);
-// 		ReplyToCommand(client, "Switched boss target to %N", iTarget);
-// 	}
-	
-// 	return Plugin_Handled;
-// }
-
-// public any Native_UnSetBossHealth(Handle plugin, int numParams) {
-
-// 	for(int i = 0; i <= MAXPLAYERS; i++)
-//     {
-// 		if (i == g_iBossTarget) {
-// 			SDKUnhook(g_iBossTarget, SDKHook_PostThink, OnBossPostThink);
-//     	}
-// 	}
-	
-
-// 	RemoveHUD();
-	
-	
-// 	return Plugin_Handled;
-// }
 
 public void OnBossPostThink(int client) {
 
-	if (client != g_iBossTarget) {
+//PrintToChatAll("THINK");
+	if (client != g_iBossTarget || !IsBoss(client)) {
 		SDKUnhook(client, SDKHook_PostThink, OnBossPostThink);
+		g_iBossTarget = -1;
 	} else {
 		if (!TF2_IsGameModeMvM()) {
 			// non-MvM, use monster resource health bar
-			if (IsPlayerAlive(client)) {
+			if (IsPlayerAlive(client) && IsClientInGame(client)) {
 				//PrintToChatAll("Player is alive");
 				TFMonsterResource.GetEntity(true).LinkHealth(client);
 			} else {
 				TFMonsterResource.GetEntity(true).BossHealthPercentageByte = 0;
 				//PrintToChatAll("Player is dead");
 				g_iBossTarget = -1;
+				//RemoveHUD();
 			}
 		} else if (!GetEntProp(client, Prop_Send, "m_bUseBossHealthBar")) {
 			// MvM, display boss health bar if it isn't already
@@ -304,17 +284,7 @@ public void OnBossPostThink(int client) {
 
 	if (g_iBossTarget == -1){
 
-		//PrintToChatAll("REMOVE HUD");
-
-		int iEnt = MaxClients + 1;
-		while ((iEnt = FindEntityByClassname(iEnt, "monster_resource")) != -1)
-		{
-			if (IsValidEntity(iEnt))
-			{
-				AcceptEntityInput(iEnt, "Kill");
-				
-			}
-		} 
+		RemoveHUD();
 	}
 }
 
@@ -322,6 +292,7 @@ public void OnClientDisconnect(int client) {
 	if (client == g_iBossTarget) {
 		SDKUnhook(g_iBossTarget, SDKHook_PostThink, OnBossPostThink);
 		g_iBossTarget = -1;
+		RemoveHUD();
 	}
 }
 

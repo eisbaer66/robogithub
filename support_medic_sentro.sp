@@ -26,6 +26,7 @@
  
 int g_Recharge[MAXPLAYERS + 1] = 1;
 int g_RechargeCap = 75;
+bool g_SpellClamp = false;
 
 public Plugin:myinfo =
 {
@@ -118,8 +119,8 @@ MakeGiantMedic(client)
 	TF2Attrib_SetByName(client, "move speed penalty", 0.7);
 	TF2Attrib_SetByName(client, "damage force reduction", 0.8);
 	TF2Attrib_SetByName(client, "airblast vulnerability multiplier", 0.8);
-float HealthPackPickUpRate =  float(MaxHealth) / float(iHealth);
-TF2Attrib_SetByName(client, "health from packs decreased", HealthPackPickUpRate);
+	float HealthPackPickUpRate =  float(MaxHealth) / float(iHealth);
+	TF2Attrib_SetByName(client, "health from packs decreased", HealthPackPickUpRate);
 	TF2Attrib_SetByName(client, "max health additive bonus", float(iAdditiveHP));
 	TF2Attrib_SetByName(client, "cancel falling damage", 1.0);
 	TF2Attrib_SetByName(client, "ammo regen", 100.0);
@@ -233,13 +234,20 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 	{
 		//0 = fireball
 		//PrintToChat(client, "Throwing spell!");
-			if (g_Recharge[client] >= g_RechargeCap)
-	{
-		CastSpell(client, 0);
-		g_Recharge[client] = 1;
-	}
+		if (g_Recharge[client] >= g_RechargeCap && !g_SpellClamp)
+		{
+			CastSpell(client, 0);
+			g_Recharge[client] = 1;
+			CreateTimer(1.0, SpellClamp_Timer);
+			g_SpellClamp = true;
+		}
 		
 	}
+}
+
+public Action SpellClamp_Timer(Handle hTimer)
+{
+	g_SpellClamp = false;
 }
 
 public void CastSpell(int client, int index) {

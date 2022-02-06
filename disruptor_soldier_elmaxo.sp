@@ -10,7 +10,7 @@
 
 #define PLUGIN_VERSION "1.0"
 #define ROBOT_NAME	"Elmaxo"
-#define ROBOT_ROLE "Disrupter"
+#define ROBOT_ROLE "Disruptor"
 #define ROBOT_DESCRIPTION "Rocket Launcher, Market Gardner"
 
 #define GSOLDIER		"models/bots/soldier/bot_soldier.mdl"
@@ -46,7 +46,7 @@ enum(<<= 1)
 
 public OnPluginStart()
 {
-    SMLoggerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
+    // SMLoggerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
 
     LoadTranslations("common.phrases");
 
@@ -187,7 +187,7 @@ public Action:BossIcebear(clients[64], &numClients, String:sample[PLATFORM_MAX_P
 
 MakeGiantSoldier(client)
 {
-	SMLogTag(SML_VERBOSE, "Createing Soldier");
+	// SMLogTag(SML_VERBOSE, "Createing Soldier");
 	TF2_SetPlayerClass(client, TFClass_Soldier);
 	TF2_RegeneratePlayer(client);
 
@@ -230,11 +230,11 @@ MakeGiantSoldier(client)
 	TF2Attrib_SetByName(client, "damage force reduction", 0.4);
 	float HealthPackPickUpRate =  float(MaxHealth) / float(iHealth);
 	TF2Attrib_SetByName(client, "health from packs decreased", HealthPackPickUpRate);
-	TF2Attrib_SetByName(client, "cancel falling damage", 1.0);
+	//TF2Attrib_SetByName(client, "cancel falling damage", 1.0);
 	
 	
 	TF2Attrib_SetByName(client, "self dmg push force increased", 8.0);
-	//TF2Attrib_SetByName(client, "boots falling stomp", 1.0);
+	TF2Attrib_SetByName(client, "boots falling stomp", 1.0);
 	//TF2Attrib_SetByName(client, "rocket jump damage reduction", 0.2);
 	
 	
@@ -299,7 +299,7 @@ stock GiveGiantPyro(client)
 		
 		if(IsValidEntity(Weapon1))
 		{
-			TF2Attrib_SetByName(Weapon1, "dmg penalty vs players", 1.00);
+			TF2Attrib_SetByName(Weapon1, "damage penalty", 0.75);
 			TF2Attrib_SetByName(Weapon1, "maxammo primary increased", 2.5);
 			TF2Attrib_SetByName(Weapon1, "killstreak tier", 1.0);			
 			TF2Attrib_SetByName(Weapon1, "faster reload rate", 1.35);
