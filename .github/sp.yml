@@ -1,0 +1,94 @@
+name: Compile with SourceMod
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sm-version: [ '1.10.x', '1.11.x', '1.11.6467', '>= 1.11.6478']
+
+    name: SM version ${{ matrix.sm-version }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set environment variables
+        run: echo SCRIPTS_PATH=$(pwd) >> $GITHUB_ENV
+
+      - name: Setup SourcePawn Compiler ${{ matrix.SM_VERSION }}
+        id: Setup_SourcePawn
+        uses: rumblefrog/setup-sp@master
+        with:
+          version: ${{ matrix.sm-version }}
+          version-file: ./berobot_handler.sp
+
+      - name: Fetch sp-files
+        id: sp_Files
+        uses: Rishabh510/Path-lister-action@master
+        with:
+          path: ""
+          type: ".sp"
+
+      # Dependecies
+        # nosoop/tf2attributes
+      - name: Download nosoop/tf2attributes
+        uses: Legion2/download-release-action@v2.1.0
+        with:
+          repository: nosoop/tf2attributes
+          tag: '1.7.1.1'
+          path: lib-include
+          file: tf2attributes.inc
+        # nosoop/SM-TFOnTakeDamage
+      - name: Download nosoop/SM-TFOnTakeDamage
+        uses: Legion2/download-release-action@v2.1.0
+        with:
+          repository: nosoop/SM-TFOnTakeDamage
+          tag: '1.2.0'
+          path: lib-include
+          file: tf_ontakedamage.inc
+        # morecolors.inc
+      - name: Download morecolors.inc
+        uses: carlosperate/download-file-action@v1
+        with:
+          file-url: 'https://raw.githubusercontent.com/DoctorMcKay/sourcemod-plugins/master/scripting/include/morecolors.inc'
+          location: './lib-include'
+        # peace-maker/DHooks2
+      - name: Download peace-maker/DHooks2
+        uses: Legion2/download-release-action@v2.1.0
+        with:
+          repository: peace-maker/DHooks2
+          tag: 'Version 2.2.0-detours17'
+          path: lib-zips
+          file: dhooks-2.2.0-detours17-sm110.zip
+      - name: Unzip peace-maker/DHooks2
+        uses: montudor/action-zip@v1
+        with:
+          args: unzip -qq lib-zips/dhooks-2.2.0-detours17-sm110.zip -d lib-zips/dhooks-2.2.0-detours17-sm110
+      - name: copy peace-maker/DHooks2        
+        uses: canastro/copy-file-action@master
+        with:
+          source: "lib-zips/dhooks-2.2.0-detours17-sm110/addons/sourcemod/scripting/include/dhooks.inc"
+          target: "./lib-include/dhooks.inc"
+        # morecolors.inc
+      - name: Download particle.inc
+        uses: carlosperate/download-file-action@v1
+        with:
+          file-url: 'https://raw.githubusercontent.com/GIider/Upgrademod/master/third_party/sourcemod/scripting/include/particle.inc'
+          location: './lib-include'
+
+
+      # Compile
+
+      - name: Compile plugins
+        run: |
+          for file in ${{ steps.sp_Files.outputs.paths }};
+          do
+            echo -e "\nCompiling $file..."
+            spcomp -O2 -v2 -i include -i lib-include $file
+          done
+          echo "===OUT FILES==="
+          ls
+          echo version = ${{ steps.Setup_SourcePawn.outputs.plugin-version }}
+        working-directory: ${{ env.SCRIPTS_PATH }}
