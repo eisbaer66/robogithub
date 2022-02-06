@@ -38,7 +38,7 @@ jobs:
         with:
           repository: nosoop/tf2attributes
           tag: '1.7.1.1'
-          path: lib-include
+          path: './lib-include'
           file: tf2attributes.inc
         # nosoop/SM-TFOnTakeDamage
       - name: Download nosoop/SM-TFOnTakeDamage
@@ -46,7 +46,7 @@ jobs:
         with:
           repository: nosoop/SM-TFOnTakeDamage
           tag: '1.2.0'
-          path: lib-include
+          path: './lib-include'
           file: tf_ontakedamage.inc
         # morecolors.inc
       - name: Download morecolors.inc
@@ -60,7 +60,7 @@ jobs:
         with:
           repository: peace-maker/DHooks2
           tag: 'Version 2.2.0-detours17'
-          path: lib-zips
+          path: './lib-zips'
           file: dhooks-2.2.0-detours17-sm110.zip
       - name: Unzip peace-maker/DHooks2
         uses: montudor/action-zip@v1
