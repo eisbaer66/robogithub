@@ -81,7 +81,12 @@ jobs:
         uses: carlosperate/download-file-action@v1
         with:
           file-url: 'https://raw.githubusercontent.com/GIider/Upgrademod/master/third_party/sourcemod/scripting/include/particle.inc'
-          location: './lib-include'
+          location: './lib-download'
+      - name: copy morecolors.inc
+        uses: canastro/copy-file-action@master
+        with:
+          source: "./lib-download/particle.inc"
+          target: "./lib-include/particle.inc"
 
 
       # Compile
