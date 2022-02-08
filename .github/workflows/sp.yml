@@ -125,13 +125,12 @@ jobs:
         uses: carlosperate/download-file-action@v1
         with:
           file-url: 'https://raw.githubusercontent.com/nosoop/stocksoup/master/entity_prop_stocks.inc'
-          # location: './lib-download'
-          location: "./lib-include/stocksoup/tf/entity_prop_stocks.inc"
-      # - name: copy entity_prop_stocks.inc
-      #   uses: canastro/copy-file-action@master
-      #   with:
-      #     source: "./lib-download/entity_prop_stocks.inc"
-      #     target: "./lib-include/stocksoup/tf/entity_prop_stocks.inc"
+          location: './lib-download'
+      - name: copy entity_prop_stocks.inc
+        run: |
+          mkdir -p "./lib-include/stocksoup/tf/"
+          cp "./lib-download/entity_prop_stocks.inc" "./lib-include/stocksoup/tf/entity_prop_stocks.inc"
+        working-directory: ${{ env.SCRIPTS_PATH }}
         # tf_cattr_buff_override.inc
       - name: Download tf_cattr_buff_override.inc
         uses: carlosperate/download-file-action@v1
