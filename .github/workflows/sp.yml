@@ -127,6 +127,22 @@ jobs:
         run: |
           for file in *.sp;
           do
+            if [[ $file == "joke"* ]]; then
+                echo "skipping " $file
+                continue;
+            fi
+            if [[ $file == *"dont_compile"* ]]; then
+                echo "skipping " $file
+                continue;
+            fi
+            if [[ $file == *"don_compile"* ]]; then
+                echo "skipping " $file
+                continue;
+            fi
+            if [[ $file == *"test"* ]]; then
+                echo "skipping " $file
+                continue;
+            fi
             echo -e "\nCompiling $file..."
             spcomp -O2 -v2 -i include -i lib-include -o plugins $file
           done
