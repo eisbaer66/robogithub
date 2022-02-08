@@ -33,7 +33,7 @@ jobs:
 
       - name: diag
         run: |
-          echo outputs = ${{ join(steps.Setup_SourcePawn.outputs.*, '; ') }}
+          echo outputs = ${{ join(steps.Setup_SourcePawn.outputs.*, ', ') }}
           echo version = ${{ steps.Setup_SourcePawn.outputs.version }}
           echo version-file = ${{ steps.Setup_SourcePawn.outputs.version-file }}
           echo plugin-version = ${{ steps.Setup_SourcePawn.outputs.plugin-version }}
