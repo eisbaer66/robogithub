@@ -93,6 +93,10 @@ jobs:
 
       - name: Compile plugins
         run: |
+          echo "===FILES==="
+          ls
+          echo $(pwd)
+          
           for file in ${{ steps.sp_Files.outputs.paths }};
           do
             echo -e "\nCompiling $file..."
