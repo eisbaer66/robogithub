@@ -108,10 +108,20 @@ jobs:
         with:
           source: "./lib-download/sm_logger.inc"
           target: "./lib-include/sm_logger.inc"
+        # tf2_isPlayerInSpawn.inc
+      - name: Download tf2_isPlayerInSpawn.inc
+        uses: carlosperate/download-file-action@v1
+        with:
+          file-url: 'http://ddhoward.com/sourcemod/updater/scripting/include/tf2_isPlayerInSpawn.inc'
+          location: './lib-download'
+      - name: copy tf2_isPlayerInSpawn.inc
+        uses: canastro/copy-file-action@master
+        with:
+          source: "./lib-download/tf2_isPlayerInSpawn.inc"
+          target: "./lib-include/tf2_isPlayerInSpawn.inc"
 
 
       # Compile
-
       - name: Compile plugins
         run: |
           for file in *.sp;
