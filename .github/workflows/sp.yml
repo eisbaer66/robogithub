@@ -24,13 +24,6 @@ jobs:
           version: ${{ matrix.sm-version }}
           version-file: ./berobot_handler.sp
 
-      - name: Fetch sp-files
-        id: sp_Files
-        uses: Rishabh510/Path-lister-action@master
-        with:
-          path: ${{ env.SCRIPTS_PATH }}
-          type: ".sp"
-
       # Dependecies
         # nosoop/tf2attributes
       - name: Download nosoop/tf2attributes
@@ -87,6 +80,17 @@ jobs:
         with:
           source: "./lib-download/particle.inc"
           target: "./lib-include/particle.inc"
+        # sm_logger.inc
+      - name: Download sm_logger.inc
+        uses: carlosperate/download-file-action@v1
+        with:
+          file-url: 'https://raw.githubusercontent.com/raziEiL/SM-Logger/master/scripting/include/sm_logger.inc'
+          location: './lib-download'
+      - name: copy sm_logger.inc       
+        uses: canastro/copy-file-action@master
+        with:
+          source: "./lib-download/sm_logger.inc"
+          target: "./lib-include/sm_logger.inc"
 
 
       # Compile
