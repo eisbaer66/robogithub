@@ -93,14 +93,10 @@ jobs:
 
       - name: Compile plugins
         run: |
-          echo "===FILES==="
-          ls
-          echo $(pwd)
-          
-          for file in ${{ steps.sp_Files.outputs.paths }};
+          for file in *.sp;
           do
             echo -e "\nCompiling $file..."
-            spcomp -O2 -v2 -i include -i lib-include $file
+            spcomp -O2 -v2 -i include -i lib-include -o plugins $file
           done
           echo "===OUT FILES==="
           ls
