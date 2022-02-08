@@ -29,6 +29,7 @@ jobs:
         with:
           version: ${{ matrix.sm-version }}
           version-file: ./berobot_handler.sp
+          define-name: PLUGIN_VERSION
 
       - name: diag
         run: |
