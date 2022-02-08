@@ -120,23 +120,17 @@ jobs:
         with:
           source: "./lib-download/tf2_isPlayerInSpawn.inc"
           target: "./lib-include/tf2_isPlayerInSpawn.inc"
-        # nosoop/stocksoup
-      - name: Download nosoop/stocksoup
-        uses: Legion2/download-release-action@v2.1.0
+        # entity_prop_stocks.inc
+      - name: Download entity_prop_stocks.inc
+        uses: carlosperate/download-file-action@v1
         with:
-          repository: nosoop/stocksoup
-          tag: 'v9'
-          path: './lib-zips'
-          file: v9.zip
-      - name: Unzip nosoop/stocksoup
-        uses: montudor/action-zip@v1
-        with:
-          args: unzip -qq lib-zips/v9.zip -d lib-zips/stocksoup-v9
-      - name: copy nosoop/stocksoup        
+          file-url: 'https://raw.githubusercontent.com/nosoop/stocksoup/master/entity_prop_stocks.inc'
+          location: './lib-download'
+      - name: copy entity_prop_stocks.inc
         uses: canastro/copy-file-action@master
         with:
-          source: "lib-zips/stocksoup-v9/tf/entity_prop_stocks.inc"
-          target: "./lib-include/stocksoup/tf/entity_prop_stocks.inc"
+          source: "./lib-download/entity_prop_stocks.inc"
+          target: "./lib-include/entity_prop_stocks.inc"
         # tf_cattr_buff_override.inc
       - name: Download tf_cattr_buff_override.inc
         uses: carlosperate/download-file-action@v1
