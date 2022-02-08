@@ -18,6 +18,11 @@ jobs:
       - name: Set environment variables
         run: echo SCRIPTS_PATH=$(pwd) >> $GITHUB_ENV
 
+      - name: create folders
+        run: |
+          mkdir -p "./lib-include/stocksoup/tf/"
+        working-directory: ${{ env.SCRIPTS_PATH }}
+
       - name: Setup SourcePawn Compiler ${{ matrix.SM_VERSION }}
         id: Setup_SourcePawn
         uses: rumblefrog/setup-sp@master
