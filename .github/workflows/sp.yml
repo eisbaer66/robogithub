@@ -33,9 +33,10 @@ jobs:
 
       - name: diag
         run: |
-          echo outputs = ${{ join(steps.Setup_SourcePawn.outputs.*, '\n') }}
+          echo outputs = ${{ join(steps.Setup_SourcePawn.outputs.*, '; ') }}
           echo version = ${{ steps.Setup_SourcePawn.outputs.version }}
           echo version-file = ${{ steps.Setup_SourcePawn.outputs.version-file }}
+          echo plugin-version = ${{ steps.Setup_SourcePawn.outputs.plugin-version }}
         working-directory: ${{ env.SCRIPTS_PATH }}
       # # Dependecies
       #   # nosoop/tf2attributes
@@ -155,6 +156,7 @@ jobs:
       # # Compile
       # - name: Compile plugins
       #   run: |
+      #     mkdir plugins
       #     for file in *.sp;
       #     do
       #       if [[ $file == "joke"* ]]; then
@@ -177,6 +179,9 @@ jobs:
       #       spcomp -O2 -v2 -i include -i lib-include -o "plugins/$(basename -- "$file" .sp).smx" $file
       #     done
       #     echo "===OUT FILES==="
+      #     ls
+      #     echo "===Plugins FILES==="
+      #     cd plugins
       #     ls
       #     echo version = ${{ steps.Setup_SourcePawn.outputs.plugin-version }}
       #   working-directory: ${{ env.SCRIPTS_PATH }}
