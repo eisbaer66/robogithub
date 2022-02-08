@@ -31,7 +31,10 @@ jobs:
           version-file: ./berobot_handler.sp
 
       - name: diag
-        run: echo outputs = ${{ join(steps.Setup_SourcePawn.outputs.*, '\n') }}
+        run: |
+          echo outputs = ${{ join(steps.Setup_SourcePawn.outputs.*, '\n') }}
+          echo version = ${{ steps.Setup_SourcePawn.outputs.version }}
+          echo version-file = ${{ steps.Setup_SourcePawn.outputs.version-file }}
         working-directory: ${{ env.SCRIPTS_PATH }}
       # # Dependecies
       #   # nosoop/tf2attributes
