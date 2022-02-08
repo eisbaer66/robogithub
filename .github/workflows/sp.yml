@@ -130,7 +130,7 @@ jobs:
         uses: canastro/copy-file-action@master
         with:
           source: "./lib-download/entity_prop_stocks.inc"
-          target: "./lib-include/entity_prop_stocks.inc"
+          target: "./lib-include/stocksoup/tf/entity_prop_stocks.inc"
         # tf_cattr_buff_override.inc
       - name: Download tf_cattr_buff_override.inc
         uses: carlosperate/download-file-action@v1
