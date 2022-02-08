@@ -33,6 +33,23 @@ jobs:
           tag: '1.7.1.1'
           path: './lib-include'
           file: tf2attributes.inc
+        # nosoop/SM-TFCustAttr
+      - name: Download nosoop/SM-TFCustAttr
+        uses: Legion2/download-release-action@v2.1.0
+        with:
+          repository: nosoop/SM-TFCustAttr
+          tag: 'workflow-build8'
+          path: './lib-zips'
+          file: package.zip
+      - name: Unzip nosoop/SM-TFCustAttr
+        uses: montudor/action-zip@v1
+        with:
+          args: unzip -qq lib-zips/package.zip -d lib-zips/SM-TFCustAttr-workflow-build8
+      - name: copy nosoop/SM-TFCustAttr        
+        uses: canastro/copy-file-action@master
+        with:
+          source: "lib-zips/SM-TFCustAttr-workflow-build8/scripting/include/tf_custom_attributes.inc"
+          target: "./lib-include/tf_custom_attributes.inc"
         # nosoop/SM-TFOnTakeDamage
       - name: Download nosoop/SM-TFOnTakeDamage
         uses: Legion2/download-release-action@v2.1.0
