@@ -125,26 +125,24 @@ jobs:
         with:
           source: "./lib-download/tf2_isPlayerInSpawn.inc"
           target: "./lib-include/tf2_isPlayerInSpawn.inc"
-        # entity_prop_stocks.inc
+        # stocksoup/tf/teams.inc
+      - name: Download entity_prop_stocks.inc
+        uses: carlosperate/download-file-action@v1
+        with:
+          file-url: 'https://raw.githubusercontent.com/nosoop/stocksoup/master/tf/teams.inc'
+          location: './lib-include/stocksoup/tf'
+        # stocksoup/tf/entity_prop_stocks.inc
       - name: Download entity_prop_stocks.inc
         uses: carlosperate/download-file-action@v1
         with:
           file-url: 'https://raw.githubusercontent.com/nosoop/stocksoup/master/tf/entity_prop_stocks.inc'
-          location: './lib-include'
-      # - name: copy entity_prop_stocks.inc
-      #   run: cp "./lib-download/entity_prop_stocks.inc" "./lib-include/stocksoup/tf/entity_prop_stocks.inc"
-      #   working-directory: ${{ env.SCRIPTS_PATH }}
+          location: './lib-include/stocksoup/tf'
         # tf_cattr_buff_override.inc
       - name: Download tf_cattr_buff_override.inc
         uses: carlosperate/download-file-action@v1
         with:
           file-url: 'https://raw.githubusercontent.com/nosoop/SM-TFCustomAttributeStarterPack/master/scripting/include/tf_cattr_buff_override.inc'
-          location: './lib-download'
-      - name: copy tf_cattr_buff_override.inc
-        uses: canastro/copy-file-action@master
-        with:
-          source: "./lib-download/tf_cattr_buff_override.inc"
-          target: "./lib-include/tf_cattr_buff_override.inc"
+          location: './lib-include'
 
 
       # Compile
