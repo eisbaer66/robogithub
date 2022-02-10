@@ -2,7 +2,7 @@
 #include <sourcemod>
 #include <tf2_stocks>
 #include <tf2attributes>
-#include <sm_logger>
+//#include <sm_logger>
 #include <berobot_constants>
 #include <berobot>
 #include <tf_custom_attributes>
@@ -70,7 +70,7 @@ enum(<<= 1)
 
 public OnPluginStart()
 {
-    // SMLoggerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
+    //aSMLOGgerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
 
     LoadTranslations("common.phrases");
 
@@ -214,7 +214,7 @@ public Action:BossIcebear(clients[64], &numClients, String:sample[PLATFORM_MAX_P
 
 MakeGiantSoldier(client)
 {
-	// SMLogTag(SML_VERBOSE, "Createing Soldier");
+	//aSMLOGTag(SML_VERBOSE, "Createing Soldier");
 	TF2_SetPlayerClass(client, TFClass_Soldier);
 	TF2_RegeneratePlayer(client);
 
@@ -355,7 +355,7 @@ bool g_PushButton[MAXPLAYERS + 1] = false;
 
 public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3], float angles[3], int& weapon, int& subtype, int& cmdnum, int& tickcount, int& seed, int mouse[2])
 {
-	if (IsRobot(client, ROBOT_NAME) && buttons & (IN_ATTACK3|IN_RELOAD|IN_USE|IN_ATTACK2) && !g_PushButton[client])
+	if (IsRobot(client, ROBOT_NAME) && buttons & (IN_ATTACK3|IN_USE|IN_ATTACK2) && !g_PushButton[client])
 	{
 		if (g_rocketCurve == 1)
 		{	

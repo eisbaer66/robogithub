@@ -10,7 +10,7 @@
 
 #define PLUGIN_VERSION "1.0"
 #define ROBOT_NAME	"Buster"
-#define ROBOT_ROLE "Support"
+#define ROBOT_ROLE "Sentry Buster"
 #define ROBOT_DESCRIPTION "Explode by taunting"
 
 #define GBUSTER		"models/bots/demo/bot_sentry_buster.mdl"
@@ -32,7 +32,7 @@ public Plugin:myinfo =
 }
 
 //new bool:g_bIsGBUSTER[MAXPLAYERS + 1];
-
+bool g_Taunt_clamp = false;
 public OnPluginStart()
 {
     LoadTranslations("common.phrases");
@@ -74,12 +74,12 @@ public void OnPluginEnd()
 public Event_Death(Event event, const char[] name, bool dontBroadcast)
 {
 	int victim = GetClientOfUserId(GetEventInt(event, "userid"));
-	
+	// PrintToChat(victim,"You died as sentry buster");
 	if (IsRobotWhenDead(victim, ROBOT_NAME))
 	{
 		AboutToExplode[victim] = false;
 		CreateTimer(4.0, Timer_Respawn, victim);
-		//PrintToChat(victim,"Creating timer");
+		// PrintToChat(victim,"Creating timer");
 	}
 
 
@@ -171,9 +171,13 @@ public Action OnTouch(int client, int ent)
 		//	PrintToChatAll("iBuildingTeam: %i || Client teamL %i", iBuildingTeam, iClientTeam);
 
 
-			if(iClientTeam != iBuildingTeam){
+			if(iClientTeam != iBuildingTeam && !g_Taunt_clamp){
 				//PrintToChatAll("not the same team");
+				GetReadyToExplode(client);
 				FakeClientCommand(client, "taunt");
+				TF2_AddCondition(client, TFCond_FreezeInput);
+				g_Taunt_clamp = true;
+				CreateTimer(1.5, FakeCommand_Clamp);
 			}
         //	PrintToChatAll("after ent name was %s", entname);
          
@@ -261,8 +265,8 @@ MakeBuster(client)
 
 	SetEntPropFloat(client, Prop_Send, "m_flModelScale", 1.75);
 	SetEntProp(client, Prop_Send, "m_bIsMiniBoss", true);
-float HealthPackPickUpRate =  float(MaxHealth) / float(iHealth);
-TF2Attrib_SetByName(client, "health from packs decreased", HealthPackPickUpRate);
+	float HealthPackPickUpRate =  float(MaxHealth) / float(iHealth);
+	TF2Attrib_SetByName(client, "health from packs decreased", HealthPackPickUpRate);
 	TF2Attrib_SetByName(client, "max health additive bonus", float(iAdditiveHP));
 	TF2Attrib_SetByName(client, "damage force reduction", 0.0);
 	TF2Attrib_SetByName(client, "move speed penalty", 2.0);
@@ -316,7 +320,14 @@ stock DoDamage(client, target, amount) // from Goomba Stomp.
 		DispatchKeyValue(pointHurt, "classname", "point_hurt");
 		DispatchKeyValue(target, "targetname", "");
 		RemoveEdict(pointHurt);
+		
 	}
+}
+
+
+public Action FakeCommand_Clamp(Handle timer)
+{
+	g_Taunt_clamp = false;
 }
 
 public TF2_OnConditionAdded(client, TFCond:condition)
@@ -387,7 +398,7 @@ public Action:Bewm(Handle:timer, any:userid)
 	AttachParticle(client, "fluidSmokeExpl_ring_mvm");
 	DoDamage(client, client, 2500);
 	FakeClientCommand(client, "kill");
-	CreateTimer(0.0, Timer_RemoveRagdoll, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	//CreateTimer(0.0, Timer_RemoveRagdoll, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	return Plugin_Handled;
 }
 
@@ -425,14 +436,14 @@ public Action:DeleteParticle(Handle:timer, any:Ent)
 	return;
 }
 
-public Action:Timer_RemoveRagdoll(Handle:timer, any:uid)
-{
-	new client = GetClientOfUserId(uid);
-	if (!IsValidClient(client)) return;
-	new ragdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
-	if (!IsValidEntity(ragdoll) || ragdoll <= MaxClients) return;
-	AcceptEntityInput(ragdoll, "Kill");
-}
+// public Action:Timer_RemoveRagdoll(Handle:timer, any:uid)
+// {
+// 	new client = GetClientOfUserId(uid);
+// 	if (!IsValidClient(client)) return;
+// 	new ragdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
+// 	if (!IsValidEntity(ragdoll) || ragdoll <= MaxClients) return;
+// 	AcceptEntityInput(ragdoll, "Kill");
+// }
 
 stock TF2_SetHealth(client, NewHealth)
 {

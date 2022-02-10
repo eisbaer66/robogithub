@@ -8,13 +8,13 @@
 #include <tf_custom_attributes>
 
 #define PLUGIN_VERSION "1.0"
-#define ROBOT_NAME	"Pyro"
-#define ROBOT_ROLE "Basic"
-#define ROBOT_DESCRIPTION "Flamethrower, Shotgun"
+#define ROBOT_NAME	"SkillTron"
+#define ROBOT_ROLE "ZBOSS"
+#define ROBOT_DESCRIPTION "Rapid Fire Airblast"
 
 #define GPYRO		"models/bots/pyro_boss/bot_pyro_boss.mdl"
-#define SPAWN	"#mvm/giant_heavy/giant_heavy_entrance.wav"
-#define DEATH	"mvm/sentrybuster/mvm_sentrybuster_explode.wav"
+#define SPAWN   "mvm/ambient_mp3/mvm_siren.mp3"
+#define DEATH   "mvm/mvm_tank_explode.wav"
 #define LOOP	"mvm/giant_pyro/giant_pyro_loop.wav"
 
 #define SOUND_GUNFIRE	")mvm/giant_pyro/giant_pyro_flamethrower_loop.wav"
@@ -64,7 +64,13 @@ public OnPluginStart()
     robot.sounds.windup = SOUND_WINDUP;
     robot.sounds.death = DEATH;
 
-    AddRobot(robot, MakeGiantPyro, PLUGIN_VERSION, null, 2);
+		RestrictionsDefinition restrictions = new RestrictionsDefinition();
+    // restrictions.TimeLeft = new TimeLeftRestrictionDefinition();
+    // restrictions.TimeLeft.SecondsBeforeEndOfRound = 300;
+    restrictions.RobotCoins = new RobotCoinRestrictionDefinition();
+    restrictions.RobotCoins.PerRobot = 4;
+
+    AddRobot(robot, MakeGiantPyro, PLUGIN_VERSION, restrictions);
 }
 
 public void OnPluginEnd()
@@ -121,7 +127,7 @@ MakeGiantPyro(client)
 	CreateTimer(0.0, Timer_Switch, client);
 	SetModel(client, GPYRO);
 	
-	int iHealth = 3000;
+	int iHealth = 5000;
 		
 	int MaxHealth = 175;
 	//PrintToChatAll("MaxHealth %i", MaxHealth);
@@ -140,14 +146,15 @@ MakeGiantPyro(client)
 	TF2Attrib_SetByName(client, "move speed penalty", 0.5);
 	TF2Attrib_SetByName(client, "damage force reduction", 0.5);
 	TF2Attrib_SetByName(client, "airblast vulnerability multiplier", 0.8);
-float HealthPackPickUpRate =  float(MaxHealth) / float(iHealth);
-TF2Attrib_SetByName(client, "health from packs decreased", HealthPackPickUpRate);
+	float HealthPackPickUpRate =  float(MaxHealth) / float(iHealth);
+	TF2Attrib_SetByName(client, "health from packs decreased", HealthPackPickUpRate);
 	TF2Attrib_SetByName(client, "cancel falling damage", 1.0);
 	TF2Attrib_SetByName(client, "patient overheal penalty", 0.15);
 	//
 	TF2Attrib_SetByName(client, "override footstep sound set", 6.0);
 	
 	TF2Attrib_SetByName(client, "rage giving scale", 0.85);
+	TF2Attrib_SetByName(client, "hand scale", 1.15);
 	//TF2Attrib_SetByName(client, "head scale", 0.75);
 
 	
@@ -156,9 +163,9 @@ TF2Attrib_SetByName(client, "health from packs decreased", HealthPackPickUpRate)
 	
 	TF2_RemoveCondition(client, TFCond_CritOnFirstBlood);
 	TF2_AddCondition(client, TFCond_SpeedBuffAlly, 0.1);
+	TF2_AddCondition(client, TFCond_CritCanteen);
 	
-	
-	PrintHintText(client , "Your Scorch shot homes in on burning targets and has high knockback!");
+	PrintHintText(client , "Rapid Fire Airblast");
 	
 	
 }
@@ -174,6 +181,8 @@ public Action:Timer_Switch(Handle:timer, any:client)
 	if (IsValidClient(client))
 		GiveGiantPyro(client);
 }
+#define FireWall 30038
+#define TrickSterTurnout 30169
 
 stock GiveGiantPyro(client)
 {
@@ -183,13 +192,16 @@ stock GiveGiantPyro(client)
 		TF2_RemoveWeaponSlot(client, 0);
 		TF2_RemoveWeaponSlot(client, 1);
 		TF2_RemoveWeaponSlot(client, 2);
+
+		CreateRoboHat(client, FireWall, 10, 6, 0.0, 0.75, -1.0); 
+		CreateRoboHat(client, TrickSterTurnout, 10, 6, 0.0, 0.75, -1.0); 
 		
 		CreateRoboWeapon(client, "tf_weapon_flamethrower", 21, 6, 1, 2, 0);	
-		CreateRoboWeapon(client, "tf_weapon_shotgun_pyro", 12, 6, 1, 2, 0);
+		// CreateRoboWeapon(client, "tf_weapon_shotgun_pyro", 12, 6, 1, 2, 0);
 //		CreateRoboWeapon(client, "tf_weapon_fireaxe", 2, 6, 1, 2, 0);
 
 		int Weapon1 = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-		int Weapon2 = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+		// int Weapon2 = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
 //		int Weapon3 = GetPlayerWeaponSlot(client, TFWeaponSlot_Melee);
 		
 		if(IsValidEntity(Weapon1))
@@ -202,15 +214,19 @@ stock GiveGiantPyro(client)
 			TF2Attrib_SetByName(Weapon1, "flame_spread_degree", 7.0);			
 			TF2Attrib_SetByName(Weapon1, "flame size bonus", 1.8);
 			TF2Attrib_SetByName(Weapon1, "flame_speed", 3800.0);
+			TF2Attrib_SetByName(Weapon1, "mult airblast refire time", 0.1);
+			// TF2Attrib_SetByName(Weapon1, "airblast cost decreased", 0.85);
+			
+			
 
 		}
-		if(IsValidEntity(Weapon2))
-		{
-			TF2Attrib_SetByName(Weapon2, "dmg penalty vs players", 1.00);
-			TF2Attrib_SetByName(Weapon2, "killstreak tier", 1.0);
-			TF2Attrib_SetByName(Weapon2, "faster reload rate", 2.5);							
-			TF2CustAttr_SetString(Weapon2, "reload full clip at once", "1.0");
-		}
+		// if(IsValidEntity(Weapon2))
+		// {
+		// 	TF2Attrib_SetByName(Weapon2, "dmg penalty vs players", 1.00);
+		// 	TF2Attrib_SetByName(Weapon2, "killstreak tier", 1.0);
+		// 	TF2Attrib_SetByName(Weapon2, "faster reload rate", 2.5);							
+		// 	TF2CustAttr_SetString(Weapon2, "reload full clip at once", "1.0");
+		// }
 	}
 }
 

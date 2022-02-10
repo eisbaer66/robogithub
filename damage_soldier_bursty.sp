@@ -2,7 +2,7 @@
 #include <sourcemod>
 #include <tf2_stocks>
 #include <tf2attributes>
-#include <sm_logger>
+//#include <sm_logger>
 #include <berobot_constants>
 #include <berobot>
 #include <sdkhooks>
@@ -61,7 +61,7 @@ enum(<<= 1)
 
 public OnPluginStart()
 {
-    // SMLoggerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
+    //aSMLOGgerInit(LOG_TAGS, sizeof(LOG_TAGS), SML_ERROR, SML_FILE);
 
     LoadTranslations("common.phrases");
 
@@ -200,7 +200,7 @@ public Action:BossHomer(clients[64], &numClients, String:sample[PLATFORM_MAX_PAT
 
 MakeGiantSoldier(client)
 {
-	// SMLogTag(SML_VERBOSE, "Createing Homer");
+	//aSMLOGTag(SML_VERBOSE, "Createing Homer");
 	TF2_SetPlayerClass(client, TFClass_Soldier);
 	TF2_RegeneratePlayer(client);
 
@@ -306,10 +306,10 @@ stock GiveGiantPyro(client)
 			TF2Attrib_SetByName(Weapon1, "auto fires full clip penalty", 1.0);
 			TF2Attrib_SetByName(Weapon1, "Reload time increased", 1.35);
 			TF2Attrib_SetByName(Weapon1, "dmg penalty vs buildings", 0.35);
-			TF2Attrib_SetByName(Weapon1, "Projectile speed increased", 1.65);
+			//TF2Attrib_SetByName(Weapon1, "Projectile speed increased", 1.65);
 			
 			
-			TF2Attrib_SetByName(Weapon1, "projectile spread angle penalty", 1.0);
+			TF2Attrib_SetByName(Weapon1, "projectile spread angle penalty", 0.5);
 			
 			
 			TF2CustAttr_SetString(Weapon1, "reload full clip at once", "1.0");

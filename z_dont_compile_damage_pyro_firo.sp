@@ -5,12 +5,11 @@
 //#include <sm_logger>
 #include <berobot_constants>
 #include <berobot>
-#include <tf_custom_attributes>
 
 #define PLUGIN_VERSION "1.0"
-#define ROBOT_NAME	"Pyro"
-#define ROBOT_ROLE "Basic"
-#define ROBOT_DESCRIPTION "Flamethrower, Shotgun"
+#define ROBOT_NAME	"Firo"
+#define ROBOT_ROLE "Damage"
+#define ROBOT_DESCRIPTION "Huo-Long Heater"
 
 #define GPYRO		"models/bots/pyro_boss/bot_pyro_boss.mdl"
 #define SPAWN	"#mvm/giant_heavy/giant_heavy_entrance.wav"
@@ -64,7 +63,7 @@ public OnPluginStart()
     robot.sounds.windup = SOUND_WINDUP;
     robot.sounds.death = DEATH;
 
-    AddRobot(robot, MakeGiantPyro, PLUGIN_VERSION, null, 2);
+    AddRobot(robot, MakeGiantPyro, PLUGIN_VERSION);
 }
 
 public void OnPluginEnd()
@@ -140,15 +139,15 @@ MakeGiantPyro(client)
 	TF2Attrib_SetByName(client, "move speed penalty", 0.5);
 	TF2Attrib_SetByName(client, "damage force reduction", 0.5);
 	TF2Attrib_SetByName(client, "airblast vulnerability multiplier", 0.8);
-float HealthPackPickUpRate =  float(MaxHealth) / float(iHealth);
-TF2Attrib_SetByName(client, "health from packs decreased", HealthPackPickUpRate);
+	float HealthPackPickUpRate =  float(MaxHealth) / float(iHealth);
+	TF2Attrib_SetByName(client, "health from packs decreased", HealthPackPickUpRate);
 	TF2Attrib_SetByName(client, "cancel falling damage", 1.0);
 	TF2Attrib_SetByName(client, "patient overheal penalty", 0.15);
-	//
+	
 	TF2Attrib_SetByName(client, "override footstep sound set", 6.0);
 	
 	TF2Attrib_SetByName(client, "rage giving scale", 0.85);
-	//TF2Attrib_SetByName(client, "head scale", 0.75);
+	// TF2Attrib_SetByName(client, "hand scale", 0.85);
 
 	
 	
@@ -184,39 +183,72 @@ stock GiveGiantPyro(client)
 		TF2_RemoveWeaponSlot(client, 1);
 		TF2_RemoveWeaponSlot(client, 2);
 		
-		CreateRoboWeapon(client, "tf_weapon_flamethrower", 21, 6, 1, 2, 0);	
-		CreateRoboWeapon(client, "tf_weapon_shotgun_pyro", 12, 6, 1, 2, 0);
-//		CreateRoboWeapon(client, "tf_weapon_fireaxe", 2, 6, 1, 2, 0);
+		CreateRoboWeapon(client, "tf_weapon_minigun", 811, 6, 1, 2, 0);	
+		// CreateRoboWeapon(client, "tf_weapon_flaregun", 740, 6, 1, 2, 0);
+		// CreateRoboWeapon(client, "tf_weapon_fireaxe", 466, 6, 1, 2, 0);
+		
+		TFTeam iTeam = view_as<TFTeam>(GetEntProp(client, Prop_Send, "m_iTeamNum"));
+		
+		// float TeamPaint = 0.0;
+
+		// if (iTeam == TFTeam_Blue){
+		// 	TeamPaint = 12807213.0;
+		// }
+		// if (iTeam == TFTeam_Red){
+		// 	TeamPaint = 12091445.0;
+		// }
+
+		// CreateRoboHat(client, LOFILONGWAVE, 10, 6, TeamPaint, 1.0, -1.0);
+		// CreateRoboHat(client, HANDSOMEDEVIL, 10, 6, TeamPaint, 0.75, -1.0);
+		// CreateRoboHat(client, PHOBOS, 10, 6, 0.0, 0.75, -1.0);
 
 		int Weapon1 = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-		int Weapon2 = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
-//		int Weapon3 = GetPlayerWeaponSlot(client, TFWeaponSlot_Melee);
+		// int Weapon2 = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+		// int Weapon3 = GetPlayerWeaponSlot(client, TFWeaponSlot_Melee);
 		
 		if(IsValidEntity(Weapon1))
 		{
 			TF2Attrib_RemoveAll(Weapon1);
-			TF2Attrib_SetByName(Weapon1, "dmg penalty vs players", 1.25);
+			TF2Attrib_SetByName(Weapon1, "dmg penalty vs players", 1.5);
 			TF2Attrib_SetByName(Weapon1, "maxammo primary increased", 2.5);
 			TF2Attrib_SetByName(Weapon1, "killstreak tier", 1.0);			
-			TF2Attrib_SetByName(Weapon1, "airblast pushback scale", 0.6);			
-			TF2Attrib_SetByName(Weapon1, "flame_spread_degree", 7.0);			
-			TF2Attrib_SetByName(Weapon1, "flame size bonus", 1.8);
-			TF2Attrib_SetByName(Weapon1, "flame_speed", 3800.0);
+			TF2Attrib_SetByName(Weapon1, "airblast pushback scale", 0.6);		
+			TF2Attrib_SetByName(Weapon1, "dmg penalty vs buildings", 0.8);			
+			TF2Attrib_SetByName(Weapon1, "flame_spread_degree", 5.0);			
+			TF2Attrib_SetByName(Weapon1, "flame size bonus", 1.6);
+			TF2Attrib_SetByName(Weapon1, "flame_speed", 3600.0);
+			TF2Attrib_SetByName(Weapon1, "attach particle effect", 4.0);
+			TF2Attrib_SetByName(Weapon1, "single wep deploy time decreased", 0.4);
+			TF2Attrib_SetByName(Weapon1, "switch from wep deploy time decreased", 0.7);
+			TF2Attrib_SetByName(Weapon1, "weapon burn dmg reduced", 1.0);
 
 		}
-		if(IsValidEntity(Weapon2))
-		{
-			TF2Attrib_SetByName(Weapon2, "dmg penalty vs players", 1.00);
-			TF2Attrib_SetByName(Weapon2, "killstreak tier", 1.0);
-			TF2Attrib_SetByName(Weapon2, "faster reload rate", 2.5);							
-			TF2CustAttr_SetString(Weapon2, "reload full clip at once", "1.0");
-		}
+		
+		// if(IsValidEntity(Weapon2))
+		// {
+		// 	TF2Attrib_RemoveAll(Weapon2);
+		// 	//TF2Attrib_SetByName(Weapon2, "dmg penalty vs players", 0.5);
+		// 	TF2Attrib_SetByName(Weapon2, "Projectile speed decreased", 0.6);
+		// 	TF2Attrib_SetByName(Weapon2, "damage causes airblast", 1.0);
+		// 	TF2Attrib_SetByName(Weapon2, "mod projectile heat seek power", 3600.0);
+		// 	//TF2Attrib_SetByName(Weapon2, "apply look velocity on damage", 1500.0);
+		// }
+
+		// 		if(IsValidEntity(Weapon3))
+		// {
+		// 	//TF2Attrib_RemoveAll(Weapon3);
+		// 	TF2Attrib_SetByName(Weapon3, "dmg bonus vs buildings", 3.25);
+		// 	TF2Attrib_SetByName(Weapon3, "melee range multiplier", 1.4);
+		// 	TF2Attrib_SetByName(Weapon3, "fire rate penalty", 1.2);
+			
+		// 	//TF2Attrib_SetByName(Weapon2, "apply look velocity on damage", 1500.0);
+		// }
 	}
 }
 
 public Action:OnPlayerRunCmd(iClient, &iButtons, &iImpulse, Float:fVel[3], Float:fAng[3], &iWeapon) 
 {
-	if (IsValidClient(iClient) && IsRobot(iClient, ROBOT_NAME)) 
+	if (IsValidClient(iClient) && IsRobot(iClient, ROBOT_NAME) && IsPlayerAlive(iClient)) 
 	{	
 		//add a check to prevent errors related to switching classes
 		
@@ -224,7 +256,7 @@ public Action:OnPlayerRunCmd(iClient, &iButtons, &iImpulse, Float:fVel[3], Float
 		new weapon = GetPlayerWeaponSlot(iClient, TFWeaponSlot_Primary);
 		int iWeapon = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
 
-		if(IsValidEntity(weapon) && iWeapon == 21)//21 == flamethrower
+		if(IsValidEntity(weapon) && iWeapon == 215)//215 == flamethrower
 		{
 			new iWeaponState = GetEntProp(weapon, Prop_Send, "m_iWeaponState");
 			if (iWeaponState == 1 && !Locked1[iClient])
